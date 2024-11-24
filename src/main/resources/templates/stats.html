@@ -135,7 +135,8 @@
                                     return Math.round(value); // Округляем RPS до целых чисел
                                 }
                                 return value;
-                            }
+                            },
+                            stepSize: label === 'requestsPerSecond' ? 1 : undefined // Шаг 1 для RPS
                         },
                         gridLines: {
                             color: 'rgba(255, 255, 255, 0.2)',
@@ -172,7 +173,7 @@
         // Обновляем текстовые значения
         document.getElementById('cpuText').textContent = `Загрузка процессора: ${cpuUsage.toFixed(2)}%`;
         document.getElementById('memoryText').textContent = `Использовано памяти: ${memoryUsage.toFixed(2)} MB из ${memoryTotal.toFixed(2)} MB`;
-        document.getElementById('requestsText').textContent = `Запросов в секунду: ${requestsPerSecond.toFixed(2)}`;
+        document.getElementById('requestsText').textContent = `Запросов в секунду: ${Math.round(requestsPerSecond)}`;
 
         // Перерисовываем графики с новыми данными
         createChart(document.getElementById('cpuChart').getContext('2d'), 'cpuUsage', history, '%');
