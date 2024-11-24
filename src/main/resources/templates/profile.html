@@ -37,7 +37,9 @@
             <li th:each="post : ${posts}" class="post-item" >
                 <div class="author-info">
                     <div class="author-avatar">
-                        <img th:src="@{${post.authorAvatar}}" alt="Avatar" class="avatar-post">
+                        <a th:href="@{/profile/{username}(username=${post.author})}">
+                            <img th:src="@{${post.authorAvatar}}" alt="Avatar" class="avatar-post">
+                        </a>
                     </div>
                     <a th:href="@{/profile/{username}(username=${post.author})}" class="author" th:text="'@' + ${post.author}"></a>
                 </div>
