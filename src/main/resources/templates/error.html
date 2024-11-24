@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ошибка</title>
+    <link rel="stylesheet" th:href="@{/error.css}">
+    <script th:inline="javascript">
+        // Выводим отладочную информацию в консоль
+        window.onload = function() {
+            console.log('Error Status:', /*[[${errorStatus}]]*/ 'N/A');
+            console.log('Error Message:', /*[[${errorMessage}]]*/ 'N/A');
+            console.log('Error Path:', /*[[${errorPath}]]*/ 'N/A');
+        }
+    </script>
+    
+</head>
+<body>
+    <div class="error-container">
+        <h1 class="error-title" th:text="${errorStatus}">500</h1>
+        <p class="error-message" th:text="${errorMessage ?: 'Произошла ошибка при обработке запроса.'}">Внутренняя ошибка сервера</p>
+        <p class="error-details" th:if="${errorDetails}" th:text="${errorDetails}"></p>
+        <p class="error-path" th:if="${errorPath}" th:text="'Путь: ' + ${errorPath}"></p>
+        <a href="/" class="btn">Вернуться на главную</a>
+    </div>
+</body>
+</html>

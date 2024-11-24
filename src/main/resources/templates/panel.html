@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ панель</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" th:href="@{/panel.css}">
+</head>
+<body>
+    <div class="admin-panel">
+        <h1>Админ панель</h1>
+        
+        <div class="section">
+            <h2>Пользователи</h2>
+            <div th:each="user : ${users}" class="user-card">
+                <div class="user-info">
+                    <span>ID:</span> <span th:text="${user.id}"></span>
+                </div>
+                <div class="user-info">
+                    <span>Имя:</span> <span th:text="${user.username}"></span>
+                </div>
+                <div class="user-info">
+                    <span>Роль:</span> <span th:text="${user.role}"></span>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-edit" th:onclick="'editUser(' + ${user.id} + ')'">Редактировать</button>
+                    <button class="btn btn-delete" th:onclick="'deleteUser(' + ${user.id} + ')'">Удалить</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Посты</h2>
+            <div th:each="post : ${posts}" class="post-card">
+                <div class="post-info">
+                    <span>ID:</span> <span th:text="${post.id}"></span>
+                </div>
+                <div class="post-info">
+                    <span>Название:</span> <span th:text="${post.title}"></span>
+                </div>
+                <div class="post-info">
+                    <span>Автор:</span> <span th:text="${post.author}"></span>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-delete" th:onclick="'deletePost(' + ${post.id} + ')'">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования пользователя -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editModal')">&times;</span>
+            <h2>Редактировать пользователя</h2>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId" name="id">
+                <div class="form-group">
+                    <label for="editUsername">Имя пользователя</label>
+                    <input type="text" id="editUsername" name="username" placeholder="Имя пользователя" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPassword">Новый пароль</label>
+                    <input type="password" id="editPassword" name="password" placeholder="Оставьте пустым, чтобы не менять">
+                </div>
+                <div class="form-group">
+                    <label for="editUserRole">Роль пользователя</label>
+                    <select id="editUserRole" name="role" required>
+                        <option value="ROLE_USER">Пользователь</option>
+                        <option value="ROLE_ADMIN">Администратор</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-edit">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        let currentUserId = null;
+
+        function editUser(userId) {
+            currentUserId = userId;
+            const modal = document.getElementById('editModal');
+            modal.classList.add('active');
+            
+            // Получаем данные пользователя и заполняем форму
+            fetch(`/admin/users/${userId}`)
+                .then(response => response.json())
+                .then(user => {
+                    document.getElementById('editUserId').value = user.id;
+                    document.getElementById('editUsername').value = user.username;
+                    document.getElementById('editUserRole').value = user.role;
+                    // Очищаем поле пароля при каждом открытии
+                    document.getElementById('editPassword').value = '';
+                });
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('active');
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+                fetch(`/admin/users/${userId}`, {
+                    method: 'DELETE'
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        function deletePost(postId) {
+            if (confirm('Вы уверены, что хотите удалить этот пост?')) {
+                fetch(`/admin/posts/${postId}`, {
+                    method: 'DELETE'
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        document.getElementById('editUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('id', document.getElementById('editUserId').value);
+            formData.append('username', document.getElementById('editUsername').value);
+            formData.append('role', document.getElementById('editUserRole').value);
+            
+            // Добавляем пароль в formData только если он был введен
+            const password = document.getElementById('editPassword').value;
+            if (password.trim() !== '') {
+                formData.append('password', password);
+            }
+
+            fetch(`/admin/users/${currentUserId}`, {
+                method: 'PUT',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                }
+            });
+        });
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

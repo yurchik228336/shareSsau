@@ -3,6 +3,9 @@ package ru.ruscreat.shareSsau.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,9 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@Controller
 public class AdminController {
 
     @Autowired
@@ -31,13 +34,13 @@ public class AdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping
+    @GetMapping("/panel")
     public String adminPanel(Model model) {
         List<User> users = userService.getAllUsers();
         List<Post> posts = postService.getAllPosts();
         model.addAttribute("users", users);
         model.addAttribute("posts", posts);
-        return "admin/panel";
+        return "panel";
     }
 
     @DeleteMapping("/posts/{id}")
@@ -45,6 +48,22 @@ public class AdminController {
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users/{id}")
+    @ResponseBody
+    public ResponseEntity<?> getUser(@PathVariable Long id) {
+        try {
+            User user = userService.getUserById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("username", user.getUsername());
+            response.put("role", user.getRole());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/users/{id}")
@@ -108,4 +127,6 @@ public class AdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
 }
