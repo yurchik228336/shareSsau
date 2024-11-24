@@ -26,6 +26,9 @@ public class User {
     @Column()
     private String bio;
 
+    @Column(nullable = false)
+    private String role = "ROLE_USER";  // По умолчанию все пользователи имеют роль USER
+
     // Геттеры и сеттеры
     public String getBio() {
         return bio;
@@ -74,5 +77,13 @@ public class User {
 
     public void setBanner(String banner) {
         this.banner = banner;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

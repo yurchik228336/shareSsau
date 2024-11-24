@@ -7,17 +7,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-
-
+/**
+ * 
+ */
 @Configuration
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Обновленный способ отключения CSRF
+                .csrf(csrf -> csrf.disable()) // 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register", "/**").permitAll()
+                        .requestMatchers("/register", "/login", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
