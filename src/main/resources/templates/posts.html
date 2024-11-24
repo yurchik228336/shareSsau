@@ -17,7 +17,11 @@
     <h1>Лента</h1>
     <div class="button-group">
         <a href="/new" class="btn">Новый пост</a>
-        <button id="checkNewPosts" class="btn" style="display: none;">Показать новые посты</button>
+        <button id="refreshFeed" class="btn">
+            <span class="refresh-icon">↻</span>
+            Обновить ленту
+            <span id="newPostsCount" class="new-posts-badge" style="display: none;">(0)</span>
+        </button>
     </div>
 
     <!-- Список постов -->
@@ -41,8 +45,10 @@
 <script>
     let lastPostTimestamp = null;
     const postList = document.getElementById('postList');
-    const checkNewPostsBtn = document.getElementById('checkNewPosts');
+    const refreshButton = document.getElementById('refreshFeed');
+    const newPostsCountBadge = document.getElementById('newPostsCount');
     let newPostsCount = 0;
+    let isRefreshing = false;
 
     // Получаем timestamp последнего поста при загрузке страницы
     if (postList.firstElementChild) {
@@ -53,20 +59,28 @@
 
     // Функция для проверки новых постов
     function checkNewPosts() {
+        if (isRefreshing) return;
+
         fetch(`/api/posts/new?lastPostTimestamp=${lastPostTimestamp}`)
             .then(response => response.json())
             .then(posts => {
                 if (posts.length > 0) {
                     newPostsCount = posts.length;
-                    checkNewPostsBtn.textContent = `Показать новые посты (${newPostsCount})`;
-                    checkNewPostsBtn.style.display = 'inline-block';
+                    newPostsCountBadge.textContent = `(${newPostsCount})`;
+                    newPostsCountBadge.style.display = 'inline';
                 }
             })
             .catch(error => console.error('Ошибка при проверке новых постов:', error));
     }
 
-    // Функция для добавления новых постов
-    checkNewPostsBtn.addEventListener('click', () => {
+    // Функция для обновления ленты
+    refreshButton.addEventListener('click', () => {
+        if (isRefreshing) return;
+        isRefreshing = true;
+        
+        // Добавляем класс для анимации иконки
+        refreshButton.classList.add('refreshing');
+
         fetch(`/api/posts/new?lastPostTimestamp=${lastPostTimestamp}`)
             .then(response => response.json())
             .then(posts => {
@@ -93,11 +107,16 @@
                     postList.insertBefore(postItem, postList.firstChild);
                 });
 
-                // Скрываем кнопку и сбрасываем счетчик
-                checkNewPostsBtn.style.display = 'none';
+                // Сбрасываем счетчик и скрываем бейдж
                 newPostsCount = 0;
+                newPostsCountBadge.style.display = 'none';
             })
-            .catch(error => console.error('Ошибка при загрузке новых постов:', error));
+            .catch(error => console.error('Ошибка при загрузке новых постов:', error))
+            .finally(() => {
+                // Убираем класс анимации и разрешаем новые обновления
+                refreshButton.classList.remove('refreshing');
+                isRefreshing = false;
+            });
     });
 
     // Проверяем новые посты каждые 30 секунд
