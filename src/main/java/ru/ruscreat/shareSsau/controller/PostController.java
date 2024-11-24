@@ -215,25 +215,32 @@ public class PostController {
         return "stats";
     }
 
-    @GetMapping("/api/posts/new")
+    @GetMapping(value = "/api/posts/new", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Post>> getNewPosts(@RequestParam(required = false) Long lastPostTimestamp) {
-        List<Post> newPosts = postService.getAllPosts().stream()
+    public ResponseEntity<List<Map<String, Object>>> getNewPosts(@RequestParam(required = false) Long lastPostTimestamp) {
+        List<Map<String, Object>> newPosts = postService.getAllPosts().stream()
                 .filter(post -> lastPostTimestamp == null || 
                         post.getCreatedAt().toInstant(ZoneOffset.UTC).toEpochMilli() > lastPostTimestamp)
                 .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                .peek(post -> {
+                .map(post -> {
+                    Map<String, Object> postMap = new HashMap<>();
+                    postMap.put("title", post.getTitle());
+                    postMap.put("content", post.getContent());
+                    postMap.put("author", post.getAuthor());
+                    
                     // Форматируем дату
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy года HH:mm")
                             .withLocale(new Locale("ru"));
                     ZonedDateTime zonedDateTime = post.getCreatedAt().atZone(ZoneId.systemDefault());
-                    post.setFormattedDate(zonedDateTime.format(formatter));
+                    postMap.put("formattedDate", zonedDateTime.format(formatter));
                     
-                    // Устанавливаем аватар
+                    // Добавляем аватар
                     if (post.getAuthor() != null) {
                         String avatarUrl = getAvatarForUser(post.getAuthor());
-                        post.setAuthorAvatar(avatarUrl);
+                        postMap.put("authorAvatar", avatarUrl);
                     }
+                    
+                    return postMap;
                 })
                 .collect(Collectors.toList());
 
