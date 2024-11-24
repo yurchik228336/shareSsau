@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <header th:fragment="header(activePage)" class="main-header">
+        <div class="header-container">
+            <a href="/" class="header-logo">
+                <span>ShareSSAU</span>
+            </a>
+            
+            <nav class="header-nav">
+                <a href="/" class="nav-link" th:classappend="${activePage == 'home' ? 'active' : ''}">Главная</a>
+                <a href="/stats" class="nav-link" th:classappend="${activePage == 'stats' ? 'active' : ''}" sec:authorize="hasRole('ROLE_ADMIN')">Статистика</a>
+            </nav>
+            
+            <div class="header-auth">
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/profile}" class="nav-link" th:classappend="${activePage == 'profile' ? 'active' : ''}">
+                        <span sec:authentication="name"></span>
+                    </a>
+                </div>
+                <div sec:authorize="!isAuthenticated()">
+                    <a href="/login" class="auth-btn login-btn" th:classappend="${activePage == 'login' ? 'active' : ''}">Войти</a>
+                    <a href="/register" class="auth-btn register-btn" th:classappend="${activePage == 'register' ? 'active' : ''}">Регистрация</a>
+                </div>
+            </div>
+        </div>
+    </header>
+</body>
+</html>

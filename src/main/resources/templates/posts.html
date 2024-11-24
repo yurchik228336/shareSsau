@@ -3,12 +3,15 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" th:href="@{/posts.css}">
+    <link rel="stylesheet" th:href="@{/header.css}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Лента</title>
-    <link rel="stylesheet" th:href="@{/style.css}">
-
 </head>
 <body>
+    <div th:replace="fragments/header :: header('home')"></div>
+
 <header class="header">
     <a href="/" class="home-btn">Главная</a>
     <a href="/profile" class="profile-btn">Профиль</a>
@@ -37,7 +40,8 @@
                 <div sec:authorize="isAuthenticated()">
                     <button th:if="${#authentication.name == post.author}" 
                             class="delete-button" 
-                            th:onclick="'deletePost(\'' + ${post.id} + '\')'">🗑️</button>
+                            th:onclick="'deletePost(\'' + ${post.id} + '\')'">🗑️
+                    </button>
                 </div>
             </li>
         </ul>

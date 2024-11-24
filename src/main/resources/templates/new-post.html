@@ -5,84 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Новый пост</title>
     <link rel="stylesheet" th:href="@{style.css}">
+    <link rel="stylesheet" th:href="@{/new-post.css}">
+    <link rel="stylesheet" th:href="@{/header.css}">
 
     <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
 </head>
 <body>
-<header class="header">
-    <a href="/" class="home-btn">Главная</a>
-    <a href="/profile" class="profile-btn">Профиль</a>
-    <a href="/profile/profileEdit" class="profileEdit-btn">Редактировать профиль</a>
-</header>
+    <div th:replace="fragments/header :: header('posts')"></div>
 
-<div class="container">
-    <h1>Новый пост</h1>
+    <div class="container">
+        <h1>Новый пост</h1>
 
-    <form th:action="@{/new}" method="post" th:object="${post}" id="postForm">
-        <div class="form-group">
-            <input type="text" id="title" name="title" th:field="*{title}" class="form-control" placeholder="Введите заголовок">
-            <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="error"></div>
-        </div>
+        <form th:action="@{/new}" method="post" th:object="${post}" id="postForm">
+            <div class="form-group">
+                <input type="text" id="title" name="title" th:field="*{title}" class="form-control" placeholder="Введите заголовок">
+                <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="error"></div>
+            </div>
 
-        <div class="form-group">
-            <textarea id="content" name="content" th:field="*{content}" class="form-control" placeholder="Введите содержание поста" maxlength="2500"></textarea>
-            <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="error"></div>
-        </div>
+            <div class="form-group">
+                <textarea id="content" name="content" th:field="*{content}" class="form-control" placeholder="Введите содержание поста" maxlength="2500"></textarea>
+                <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="error"></div>
+            </div>
 
-        <button type="submit" class="btn" id="submitBtn">Опубликовать</button>
-    </form>
-</div>
+            <button type="submit" class="btn" id="submitBtn">Опубликовать</button>
+        </form>
+    </div>
 
-<script>
-    ClassicEditor.create(document.querySelector('#content'), {
-        toolbar: [
-            'undo', 'redo', '|', '|', 'bold', 'italic', '|',
-            'link', '|', 'imageUpload', 'mediaEmbed'
-        ],
-        language: {
-            ui: 'ru',
-            content: 'ru'
-        },
-        image: {
+    <script>
+        ClassicEditor.create(document.querySelector('#content'), {
             toolbar: [
-                'imageTextAlternative', '|', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'
-            ]
-        },
-        mediaEmbed: {
-            previewsInData: true
-        },
-        simpleUpload: {
-            uploadUrl: '/upload',
-        },
-        imageResize: {
-            options: [
-                { name: 'imageResize:original', label: 'Оригинальный размер' },
-                { name: 'imageResize:50', label: '50%' },
-                { name: 'imageResize:75', label: '75%' },
-                { name: 'imageResize:100', label: '100%' }
-            ]
-        },
-        ckfinder: {
-            uploadUrl: '/upload'
-        },
-        alignment: {
-            options: ['left', 'center', 'right']
-        },
-        placeholder: 'Введите текст...',
-        dragAndDrop: true
-    })
-    .catch(error => {
-        console.error("Ошибка инициализации CKEditor:", error);
-    });
+                'undo', 'redo', '|', '|', 'bold', 'italic', '|',
+                'link', '|', 'imageUpload', 'mediaEmbed'
+            ],
+            language: {
+                ui: 'ru',
+                content: 'ru'
+            },
+            image: {
+                toolbar: [
+                    'imageTextAlternative', '|', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'
+                ]
+            },
+            mediaEmbed: {
+                previewsInData: true
+            },
+            simpleUpload: {
+                uploadUrl: '/upload',
+            },
+            imageResize: {
+                options: [
+                    { name: 'imageResize:original', label: 'Оригинальный размер' },
+                    { name: 'imageResize:50', label: '50%' },
+                    { name: 'imageResize:75', label: '75%' },
+                    { name: 'imageResize:100', label: '100%' }
+                ]
+            },
+            ckfinder: {
+                uploadUrl: '/upload'
+            },
+            alignment: {
+                options: ['left', 'center', 'right']
+            },
+            placeholder: 'Введите текст...',
+            dragAndDrop: true
+        })
+        .catch(error => {
+            console.error("Ошибка инициализации CKEditor:", error);
+        });
 
-    // Добавим обработчик для кнопки отправки
-    document.getElementById('postForm').addEventListener('submit', function (event) {
-        // Блокируем кнопку отправки
-        const submitButton = document.getElementById('submitBtn');
-        submitButton.disabled = true;
-        submitButton.innerText = 'Отправляется...'; // Изменяем текст кнопки, чтобы показать пользователю, что идет отправка
-    });
-</script>
+        // Добавим обработчик для кнопки отправки
+        document.getElementById('postForm').addEventListener('submit', function (event) {
+            // Блокируем кнопку отправки
+            const submitButton = document.getElementById('submitBtn');
+            submitButton.disabled = true;
+            submitButton.innerText = 'Отправляется...'; // Изменяем текст кнопки, чтобы показать пользователю, что идет отправка
+        });
+    </script>
 
 </body>
 </html>

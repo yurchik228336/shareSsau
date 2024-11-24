@@ -2,28 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <link rel="stylesheet" th:href="@{/auth.css}">
+    <link rel="stylesheet" th:href="@{/header.css}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Авторизация</title>
 </head>
 <body>
-<header class="header">
-    <a href="/" class="home-btn">Главная</a>
-</header>
+    <div th:replace="fragments/header :: header('login')"></div>
 
-<div class="container">
-    <h1>Авторизация</h1>
-    <div th:if="${param.error}" class="error-message" style="color: red;">
-        <p>Неверное имя пользователя или пароль.</p>
+    <div class="container">
+        <h1>Авторизация</h1>
+        <div th:if="${param.error}" class="error-message" style="color: red;">
+            <p>Неверное имя пользователя или пароль.</p>
+        </div>
+        <form th:action="@{/login}" method="post">
+            <input type="text" name="username" placeholder="Имя пользователя" required>
+            <input type="password" name="password" placeholder="Пароль" required>
+            <button type="submit" class="btn">Авторизоваться</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 15px;">
+            Нет аккаунта? <a href="/register" style="color: var(--color-accent); text-decoration: none;">Зарегистрироваться</a>
+        </p>
     </div>
-    <form th:action="@{/login}" method="post">
-        <input type="text" name="username" placeholder="Имя пользователя" required>
-        <input type="password" name="password" placeholder="Пароль" required>
-        <button type="submit" class="btn">Авторизоваться</button>
-    </form>
-
-    <p style="text-align: center; margin-top: 15px;">
-        Нет аккаунта? <a href="/register" style="color: var(--color-accent); text-decoration: none;">Зарегистрироваться</a>
-    </p>
-</div>
 </body>
 </html>

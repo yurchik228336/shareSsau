@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Система статистики</title>
+    <link rel="stylesheet" th:href="@{/stats.css}">
+    <link rel="stylesheet" th:href="@{/header.css}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/webjars/chartjs/2.9.4/Chart.min.js"></script>
+    <title>Статистика</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --chart-bg: rgba(75, 192, 192, 0.2);
@@ -63,129 +65,130 @@
                 width: 80%;
             }
         }
-
     </style>
 </head>
 <body>
-<h1>Система статистики</h1>
+    <div th:replace="fragments/header :: header('stats')"></div>
 
-<div class="container">
-    <!-- CPU Section -->
-    <div class="stat-item">
-        <h3>Использование процессора</h3>
-        <canvas id="cpuChart" width="400" height="200"></canvas>
-        <div class="stat-text" id="cpuText">Загрузка процессора: 0%</div>
+    <h1>Система статистики</h1>
+
+    <div class="container">
+        <!-- CPU Section -->
+        <div class="stat-item">
+            <h3>Использование процессора</h3>
+            <canvas id="cpuChart" width="400" height="200"></canvas>
+            <div class="stat-text" id="cpuText">Загрузка процессора: 0%</div>
+        </div>
+
+        <!-- Memory Section -->
+        <div class="stat-item">
+            <h3>Использование памяти</h3>
+            <canvas id="memoryChart" width="400" height="200"></canvas>
+            <div class="stat-text" id="memoryText">Использовано памяти: 0 MB из 0 MB</div>
+        </div>
+
+        <!-- Requests per second Section -->
+        <div class="stat-item">
+            <h3>Запросов в секунду</h3>
+            <canvas id="requestsChart" width="400" height="200"></canvas>
+            <div class="stat-text" id="requestsText">Запросов в секунду: 0</div>
+        </div>
     </div>
 
-    <!-- Memory Section -->
-    <div class="stat-item">
-        <h3>Использование памяти</h3>
-        <canvas id="memoryChart" width="400" height="200"></canvas>
-        <div class="stat-text" id="memoryText">Использовано памяти: 0 MB из 0 MB</div>
-    </div>
+    <script>
+        async function fetchData() {
+            const response = await fetch('/api/stats');
+            return response.json();
+        }
 
-    <!-- Requests per second Section -->
-    <div class="stat-item">
-        <h3>Запросов в секунду</h3>
-        <canvas id="requestsChart" width="400" height="200"></canvas>
-        <div class="stat-text" id="requestsText">Запросов в секунду: 0</div>
-    </div>
-</div>
-
-<script>
-    async function fetchData() {
-        const response = await fetch('/api/stats');
-        return response.json();
-    }
-
-    function createChart(ctx, label, historyData, unit) {
-        return new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: historyData.map(item => new Date(item.timestamp).toLocaleTimeString()),
-                datasets: [{
-                    label: label,
-                    data: historyData.map(item => {
-                        if (label === 'cpuUsage') {
-                            return item[label] * 100; // Для CPU отображаем в процентах
-                        } else if (label === 'memoryUsage') {
-                            return item[label]; // Для памяти конвертируем в MB
-                        } else {
-                            return item[label]; // Запросы в секунду отображаем как есть
-                        }
-                    }),
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            fontColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
-                            userCallback: function(value) {
-                                if (label === 'cpuUsage') {
-                                    return value + '%'; // Добавляем знак % для процессора
-                                } else if (label === 'memoryUsage') {
-                                    return value.toFixed(2) + ' MB'; // Для памяти показываем MB
-                                } else if (label === 'requestsPerSecond') {
-                                    return Math.round(value); // Округляем RPS до целых чисел
-                                }
-                                return value;
-                            },
-                            stepSize: label === 'requestsPerSecond' ? 1 : undefined // Шаг 1 для RPS
-                        },
-                        gridLines: {
-                            color: 'rgba(255, 255, 255, 0.2)',
-                        }
-                    }],
-                    xAxes: [{
-                        ticks: {
-                            fontColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
-                        },
-                        gridLines: {
-                            color: 'rgba(255, 255, 255, 0.2)',
-                        }
+        function createChart(ctx, label, historyData, unit) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historyData.map(item => new Date(item.timestamp).toLocaleTimeString()),
+                    datasets: [{
+                        label: label,
+                        data: historyData.map(item => {
+                            if (label === 'cpuUsage') {
+                                return item[label] * 100; // Для CPU отображаем в процентах
+                            } else if (label === 'memoryUsage') {
+                                return item[label]; // Для памяти конвертируем в MB
+                            } else {
+                                return item[label]; // Запросы в секунду отображаем как есть
+                            }
+                        }),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
                     }]
                 },
-                legend: {
-                    labels: {
-                        fontColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                options: {
+                    responsive: true,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                fontColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                                userCallback: function(value) {
+                                    if (label === 'cpuUsage') {
+                                        return value + '%'; // Добавляем знак % для процессора
+                                    } else if (label === 'memoryUsage') {
+                                        return value.toFixed(2) + ' MB'; // Для памяти показываем MB
+                                    } else if (label === 'requestsPerSecond') {
+                                        return Math.round(value); // Округляем RPS до целых чисел
+                                    }
+                                    return value;
+                                },
+                                stepSize: label === 'requestsPerSecond' ? 1 : undefined // Шаг 1 для RPS
+                            },
+                            gridLines: {
+                                color: 'rgba(255, 255, 255, 0.2)',
+                            }
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                fontColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                            },
+                            gridLines: {
+                                color: 'rgba(255, 255, 255, 0.2)',
+                            }
+                        }]
+                    },
+                    legend: {
+                        labels: {
+                            fontColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                        }
                     }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    async function updateCharts() {
-        const data = await fetchData();
-        const history = data.history;
+        async function updateCharts() {
+            const data = await fetchData();
+            const history = data.history;
 
-        // Обновляем текстовые значения для каждого параметра
-        const cpuUsage = history[history.length - 1].cpuUsage * 100; // В процентах
-        const memoryUsage = history[history.length - 1].memoryUsage
-        const memoryTotal = history[history.length - 1].memoryTotal
-        const requestsPerSecond = history[history.length - 1].requestsPerSecond;
+            // Обновляем текстовые значения для каждого параметра
+            const cpuUsage = history[history.length - 1].cpuUsage * 100; // В процентах
+            const memoryUsage = history[history.length - 1].memoryUsage
+            const memoryTotal = history[history.length - 1].memoryTotal
+            const requestsPerSecond = history[history.length - 1].requestsPerSecond;
 
-        // Обновляем текстовые значения
-        document.getElementById('cpuText').textContent = `Загрузка процессора: ${cpuUsage.toFixed(2)}%`;
-        document.getElementById('memoryText').textContent = `Использовано памяти: ${memoryUsage.toFixed(2)} MB из ${memoryTotal.toFixed(2)} MB`;
-        document.getElementById('requestsText').textContent = `Запросов в секунду: ${Math.round(requestsPerSecond)}`;
+            // Обновляем текстовые значения
+            document.getElementById('cpuText').textContent = `Загрузка процессора: ${cpuUsage.toFixed(2)}%`;
+            document.getElementById('memoryText').textContent = `Использовано памяти: ${memoryUsage.toFixed(2)} MB из ${memoryTotal.toFixed(2)} MB`;
+            document.getElementById('requestsText').textContent = `Запросов в секунду: ${Math.round(requestsPerSecond)}`;
 
-        // Перерисовываем графики с новыми данными
-        createChart(document.getElementById('cpuChart').getContext('2d'), 'cpuUsage', history, '%');
-        createChart(document.getElementById('memoryChart').getContext('2d'), 'memoryUsage', history, 'MB');
-        createChart(document.getElementById('requestsChart').getContext('2d'), 'requestsPerSecond', history, '');
-    }
+            // Перерисовываем графики с новыми данными
+            createChart(document.getElementById('cpuChart').getContext('2d'), 'cpuUsage', history, '%');
+            createChart(document.getElementById('memoryChart').getContext('2d'), 'memoryUsage', history, 'MB');
+            createChart(document.getElementById('requestsChart').getContext('2d'), 'requestsPerSecond', history, '');
+        }
 
-    // Первоначальная загрузка данных
-    updateCharts();
+        // Первоначальная загрузка данных
+        updateCharts();
 
-    // Обновление данных каждую минуту
-    setInterval(updateCharts, 60000);
-</script>
+        // Обновление данных каждую минуту
+        setInterval(updateCharts, 60000);
+    </script>
 </body>
 </html>

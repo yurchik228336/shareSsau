@@ -53,7 +53,7 @@ input[type="password"]:focus {
     border-color: var(--color-accent);
 }
 
-button {
+.btn {
     width: 100%;
     padding: 12px;
     background-color: var(--color-accent);
@@ -66,12 +66,12 @@ button {
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-button:hover {
+.btn:hover {
     background-color: var(--color-accent-hover);
     transform: translateY(-2px);
 }
 
-button:active {
+.btn:active {
     transform: translateY(0);
 }
 
