@@ -1,136 +1,136 @@
-# ShareSsau - Social Network for SSAU Students
+# ShareSsau - Социальная сеть для студентов СГАУ
 
-ShareSsau is a modern social networking platform specifically designed for students of Samara State Aerospace University (SSAU). It provides a secure and feature-rich environment for students to connect, share content, and engage with their university community.
+ShareSsau - это современная социальная платформа, специально разработанная для студентов Самарского государственного аэрокосмического университета (СГАУ). Она предоставляет безопасную и функциональную среду для общения студентов, обмена контентом и взаимодействия с университетским сообществом.
 
-## Features
+## Возможности
 
-- **User Authentication & Authorization**
-  - Secure login and registration system
-  - Role-based access control
-  - Password encryption
+- **Аутентификация и авторизация**
+  - Безопасная система входа и регистрации
+  - Ролевой контроль доступа
+  - Шифрование паролей
 
-- **User Profiles**
-  - Customizable profile information
-  - Profile picture and banner upload
-  - Activity history
+- **Профили пользователей**
+  - Настраиваемая информация профиля
+  - Загрузка аватара и баннера
+  - История активности
 
-- **Content Sharing**
-  - Create and share posts
-  - Upload images and files
-  - Interactive content feed
+- **Обмен контентом**
+  - Создание и публикация постов
+  - Загрузка изображений и файлов
+  - Интерактивная лента новостей
 
-- **Performance Monitoring**
-  - Real-time request tracking
-  - Requests per second (RPS) monitoring
-  - System resource usage statistics
+- **Мониторинг производительности**
+  - Отслеживание запросов в реальном времени
+  - Мониторинг запросов в секунду (RPS)
+  - Статистика использования системных ресурсов
 
-- **Security Features**
-  - HTTPS encryption
-  - Rate limiting (10 requests per second per IP)
-  - Cross-Site Request Forgery (CSRF) protection
+- **Функции безопасности**
+  - HTTPS шифрование
+  - Ограничение запросов (10 запросов в секунду с одного IP)
+  - Защита от межсайтовой подделки запросов (CSRF)
 
-## Technical Stack
+## Технический стек
 
-- **Backend**
+- **Бэкенд**
   - Java 17
   - Spring Boot 3.x
   - Spring Security
   - Spring Data JPA
-  - MySQL Database
+  - MySQL База данных
 
-- **Frontend**
-  - Thymeleaf templates
+- **Фронтенд**
+  - Thymeleaf шаблоны
   - HTML5/CSS3
   - JavaScript
 
-- **Security**
-  - SSL/TLS encryption
-  - Custom rate limiting implementation
-  - Session management
+- **Безопасность**
+  - SSL/TLS шифрование
+  - Пользовательская реализация ограничения запросов
+  - Управление сессиями
 
-## Getting Started
+## Начало работы
 
-### Prerequisites
+### Требования
 
-- Java 17 or higher
+- Java 17 или выше
 - Maven
-- MySQL Server
-- SSL Certificate (for HTTPS)
+- MySQL Сервер
+- SSL Сертификат (для HTTPS)
 
-### Configuration
+### Настройка
 
-1. Configure database connection in `application.properties`:
+1. Настройка подключения к базе данных в `application.properties`:
    ```properties
    spring.datasource.url=your_database_url
    spring.datasource.username=your_username
    spring.datasource.password=your_password
    ```
 
-2. Configure SSL certificate:
+2. Настройка SSL сертификата:
    ```properties
    server.ssl.key-store=classpath:ssl/your-certificate.p12
    server.ssl.key-store-password=your-password
    server.ssl.key-store-type=PKCS12
    ```
 
-3. Set up upload directory:
+3. Настройка директории для загрузок:
    ```properties
    upload-dir=uploads
    ```
 
-### Building and Running
+### Сборка и запуск
 
-1. Clone the repository:
+1. Клонирование репозитория:
    ```bash
    git clone https://github.com/yurchik228336/shareSsau.git
    ```
 
-2. Navigate to project directory:
+2. Переход в директорию проекта:
    ```bash
    cd shareSsau
    ```
 
-3. Build the project:
+3. Сборка проекта:
    ```bash
    mvn clean install
    ```
 
-4. Run the application:
+4. Запуск приложения:
    ```bash
    java -jar target/shareSsau-0.0.1-SNAPSHOT.jar
    ```
 
-The application will be available at:
+Приложение будет доступно по адресам:
 - HTTPS: https://localhost:8443
 - HTTP: http://localhost:8081
 
-## API Endpoints
+## API Эндпоинты
 
-- `/api/stats` - System performance metrics
-- `/auth/**` - Authentication endpoints
-- `/profile/**` - User profile management
-- `/posts/**` - Post management
+- `/api/stats` - Метрики производительности системы
+- `/auth/**` - Эндпоинты аутентификации
+- `/profile/**` - Управление профилем пользователя
+- `/posts/**` - Управление постами
 
-## Security Considerations
+## Безопасность
 
-- The application implements rate limiting of 10 requests per second per IP
-- All sensitive data is encrypted
-- Passwords are hashed using secure algorithms
-- Session tokens are managed securely
+- Реализовано ограничение в 10 запросов в секунду с одного IP
+- Все конфиденциальные данные зашифрованы
+- Пароли хешируются с использованием безопасных алгоритмов
+- Безопасное управление токенами сессий
 
-## Contributing
+## Как внести свой вклад
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Сделайте форк репозитория
+2. Создайте ветку для новой функции (`git checkout -b feature/НоваяФункция`)
+3. Зафиксируйте изменения (`git commit -m 'Добавлена новая функция'`)
+4. Отправьте изменения в ваш форк (`git push origin feature/НоваяФункция`)
+5. Создайте Pull Request
 
-## License
+## Лицензия
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Этот проект лицензирован под MIT License - см. файл [LICENSE](LICENSE) для подробностей.
 
-## Acknowledgments
+## Благодарности
 
-- SSAU for inspiration and support
-- All contributors who have helped with the project
+- СГАУ за вдохновение и поддержку
+- Всем участникам, которые помогли в разработке проекта
