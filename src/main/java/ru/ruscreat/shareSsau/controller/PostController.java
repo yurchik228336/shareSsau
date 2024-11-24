@@ -13,7 +13,6 @@ import ru.ruscreat.shareSsau.models.User;
 import ru.ruscreat.shareSsau.services.PostService;
 import ru.ruscreat.shareSsau.services.UserService;
 
-
 import java.util.List;
 import java.util.Comparator;
 import java.util.Locale;
@@ -41,7 +40,6 @@ import org.springframework.core.io.UrlResource;
 public class PostController {
     private final PostService postService;
     private final UserService userService;
-
 
     // Список для хранения всех SSE эмиттеров
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
@@ -118,6 +116,7 @@ public class PostController {
 
         return "redirect:/";
     }
+
     private boolean containsZalgo(String text) {
         if (text == null) {
             return false;
@@ -125,8 +124,6 @@ public class PostController {
         String regex = "[\u0E00-\u0E7F\u0E80-\u0EFF\u0F00-\u0FFF\u2000-\u206F\u3000-\u303F]+";
         return text.matches(regex);
     }
-
-
 
     // SSE endpoint для получения обновлений
     @GetMapping("/stream")
@@ -215,5 +212,30 @@ public class PostController {
     @GetMapping("/stats")
     public String getStatsPage() {
         return "stats";
+    }
+
+    @GetMapping("/api/posts/new")
+    @ResponseBody
+    public ResponseEntity<List<Post>> getNewPosts(@RequestParam(required = false) Long lastPostTimestamp) {
+        List<Post> newPosts = postService.getAllPosts().stream()
+                .filter(post -> lastPostTimestamp == null || 
+                        post.getCreatedAt().toInstant(ZoneOffset.UTC).toEpochMilli() > lastPostTimestamp)
+                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+                .peek(post -> {
+                    // Форматируем дату
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy года HH:mm")
+                            .withLocale(new Locale("ru"));
+                    ZonedDateTime zonedDateTime = post.getCreatedAt().atZone(ZoneId.systemDefault());
+                    post.setFormattedDate(zonedDateTime.format(formatter));
+                    
+                    // Устанавливаем аватар
+                    if (post.getAuthor() != null) {
+                        String avatarUrl = getAvatarForUser(post.getAuthor());
+                        post.setAuthorAvatar(avatarUrl);
+                    }
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(newPosts);
     }
 }

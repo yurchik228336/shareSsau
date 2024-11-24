@@ -13,10 +13,12 @@
     <a href="/profile/profileEdit" class="profileEdit-btn">Редактировать профиль</a>
 </header>
 
-
 <div class="container">
     <h1>Лента</h1>
-    <a href="/new" class="btn">Новый пост</a>
+    <div class="button-group">
+        <a href="/new" class="btn">Новый пост</a>
+        <button id="checkNewPosts" class="btn" style="display: none;">Показать новые посты</button>
+    </div>
 
     <!-- Список постов -->
     <div>
@@ -37,33 +39,69 @@
 </div>
 
 <script>
-    // Открытие SSE подключения для получения новых постов
-    const eventSource = new EventSource('/stream');
+    let lastPostTimestamp = null;
+    const postList = document.getElementById('postList');
+    const checkNewPostsBtn = document.getElementById('checkNewPosts');
+    let newPostsCount = 0;
 
-    // Обработка новых постов
-    eventSource.onmessage = function(event) {
-        const post = JSON.parse(event.data);
+    // Получаем timestamp последнего поста при загрузке страницы
+    if (postList.firstElementChild) {
+        const firstPost = postList.firstElementChild;
+        const dateText = firstPost.querySelector('small').textContent;
+        lastPostTimestamp = new Date(dateText.replace(' года ', ' ')).getTime();
+    }
 
-        // Создаем новый элемент списка для нового поста
-        const postList = document.getElementById('postList');
-        const postItem = document.createElement('li');
-        postItem.classList.add('post-item');
+    // Функция для проверки новых постов
+    function checkNewPosts() {
+        fetch(`/api/posts/new?lastPostTimestamp=${lastPostTimestamp}`)
+            .then(response => response.json())
+            .then(posts => {
+                if (posts.length > 0) {
+                    newPostsCount = posts.length;
+                    checkNewPostsBtn.textContent = `Показать новые посты (${newPostsCount})`;
+                    checkNewPostsBtn.style.display = 'inline-block';
+                }
+            })
+            .catch(error => console.error('Ошибка при проверке новых постов:', error));
+    }
 
-        postItem.innerHTML = `
-            <div class="author-info">
-                <div class="author-avatar">
-                    <img src="${post.authorAvatar}" alt="Avatar" class="avatar">
-                </div>
-                <a href="/profile/${post.author}" class="author">@${post.author}</a>
-            </div>
-            <h3>${post.title}</h3>
-            <p>${post.content}</p>
-            <small>${post.formattedDate}</small>
-        `;
+    // Функция для добавления новых постов
+    checkNewPostsBtn.addEventListener('click', () => {
+        fetch(`/api/posts/new?lastPostTimestamp=${lastPostTimestamp}`)
+            .then(response => response.json())
+            .then(posts => {
+                // Обновляем timestamp последнего поста
+                if (posts.length > 0) {
+                    lastPostTimestamp = new Date(posts[0].createdAt).getTime();
+                }
 
-        // Добавляем новый пост в начало ленты
-        postList.insertBefore(postItem, postList.firstChild);
-    };
+                // Добавляем новые посты в начало списка
+                posts.forEach(post => {
+                    const postItem = document.createElement('li');
+                    postItem.classList.add('post-item');
+                    postItem.innerHTML = `
+                        <div class="author-info">
+                            <div class="author-avatar">
+                                <img src="${post.authorAvatar}" alt="Avatar" class="avatar">
+                            </div>
+                            <a href="/profile/${post.author}" class="author">@${post.author}</a>
+                        </div>
+                        <h3>${post.title}</h3>
+                        <p>${post.content}</p>
+                        <small>${post.formattedDate}</small>
+                    `;
+                    postList.insertBefore(postItem, postList.firstChild);
+                });
+
+                // Скрываем кнопку и сбрасываем счетчик
+                checkNewPostsBtn.style.display = 'none';
+                newPostsCount = 0;
+            })
+            .catch(error => console.error('Ошибка при загрузке новых постов:', error));
+    });
+
+    // Проверяем новые посты каждые 30 секунд
+    setInterval(checkNewPosts, 30000);
 </script>
 
 </body>
