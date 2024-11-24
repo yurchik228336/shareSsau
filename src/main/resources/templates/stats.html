@@ -131,6 +131,8 @@
                                     return value + '%'; // Добавляем знак % для процессора
                                 } else if (label === 'memoryUsage') {
                                     return value.toFixed(2) + ' MB'; // Для памяти показываем MB
+                                } else if (label === 'requestsPerSecond') {
+                                    return Math.round(value); // Округляем RPS до целых чисел
                                 }
                                 return value;
                             }
