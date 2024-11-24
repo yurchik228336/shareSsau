@@ -25,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -215,5 +216,24 @@ public class PostController {
     @GetMapping("/stats")
     public String getStatsPage() {
         return "stats";
+    }
+
+    @DeleteMapping("/api/posts/{id}")
+    @PreAuthorize("isAuthenticated()")
+    @ResponseBody
+    public ResponseEntity<?> deletePost(@PathVariable Long id, Authentication authentication) {
+        Optional<Post> postOptional = postService.getPostById(id);
+        if (postOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Post post = postOptional.get();
+        // Проверяем, является ли текущий пользователь автором поста
+        if (!post.getAuthor().equals(authentication.getName())) {
+            return ResponseEntity.status(403).body("Вы не можете удалить чужой пост");
+        }
+        
+        postService.deletePost(id);
+        return ResponseEntity.ok().build();
     }
 }

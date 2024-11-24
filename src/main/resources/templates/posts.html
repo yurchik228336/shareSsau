@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Лента</title>
     <link rel="stylesheet" th:href="@{/style.css}">
+
 </head>
 <body>
 <header class="header">
@@ -12,7 +14,6 @@
     <a href="/profile" class="profile-btn">Профиль</a>
     <a href="/profile/profileEdit" class="profileEdit-btn">Редактировать профиль</a>
 </header>
-
 
 <div class="container">
     <h1>Лента</h1>
@@ -33,20 +34,43 @@
                 <h3 th:text="${post.title}"></h3>
                 <p th:utext="${post.content}"></p>
                 <small th:text="${post.formattedDate}"></small>
+                <div sec:authorize="isAuthenticated()">
+                    <button th:if="${#authentication.name == post.author}" 
+                            class="delete-button" 
+                            th:onclick="'deletePost(\'' + ${post.id} + '\')'">🗑️</button>
+                </div>
             </li>
         </ul>
     </div>
 </div>
 
 <script>
+    function deletePost(postId) {
+        if (confirm('Вы уверены, что хотите удалить этот пост?')) {
+            fetch(`/api/posts/${postId}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if (response.ok) {
+                    const postElement = document.querySelector(`[onclick="deletePost('${postId}')"]`).closest('.post-item');
+                    postElement.remove();
+                } else {
+                    alert('Ошибка при удалении поста');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при удалении поста');
+            });
+        }
+    }
+
     // Открытие SSE подключения для получения новых постов
     const eventSource = new EventSource('/stream');
 
     // Обработка новых постов
     eventSource.onmessage = function(event) {
         const post = JSON.parse(event.data);
-
-        // Создаем новый элемент списка для нового поста
         const postList = document.getElementById('postList');
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
@@ -65,7 +89,6 @@
             <small>${post.formattedDate}</small>
         `;
 
-        // Добавляем новый пост в начало ленты
         postList.insertBefore(postItem, postList.firstChild);
     };
 </script>
