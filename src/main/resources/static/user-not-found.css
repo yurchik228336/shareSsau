@@ -1,0 +1,62 @@
+/* Общие стили */
+body {
+    background-color: #121212;  /* Темный фон для всей страницы */
+    color: #e0e0e0;  /* Светлый текст для контраста */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  /* Современный шрифт */
+    margin: 0;
+    padding: 0;
+}
+
+/* Контейнер для всего контента */
+.container {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #1f1f1f;  /* Темный фон с чуть светлее оттенком */
+    border-radius: 15px;  /* Округлые углы */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);  /* Глубокая тень для объема */
+    text-align: center;  /* Центрируем текст */
+    box-sizing: border-box;  /* Учитываем padding внутри контейнера */
+}
+
+/* Заголовок ошибки */
+.error-title {
+    color: #ff4d4d;  /* Ярко-красный цвет для заголовка */
+    font-size: 28px;  /* Увеличиваем размер шрифта */
+    margin-bottom: 20px;  /* Отступ снизу */
+}
+
+/* Сообщение об ошибке */
+.error-message {
+    font-size: 16px;  /* Стандартный размер текста */
+    margin-bottom: 30px;  /* Отступ снизу */
+    color: #ffffff;  /* Белый цвет текста */
+}
+
+/* Кнопка возвращения */
+.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #6200ea;  /* Яркий фиолетовый цвет */
+    color: #ffffff;
+    border-radius: 12px;  /* Округлые края */
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: auto;
+    max-width: 100%;  /* Максимальная ширина кнопки */
+    box-sizing: border-box;  /* Учитываем padding внутри кнопки */
+    text-decoration: none;
+
+}
+
+.btn:hover {
+    background-color: #3700b3;  /* Темнее при наведении */
+    transform: translateY(-2px);  /* Эффект поднятия при наведении */
+}
+
+.btn:active {
+    background-color: #6200ea;  /* При нажатии возвращаем изначальный цвет */
+    transform: translateY(0);  /* Возвращение к нормальной позиции */
+}

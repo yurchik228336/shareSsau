@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль пользователя</title>
+    <link rel="stylesheet" th:href="@{/profile.css}">
+</head>
+<body>
+<header class="header">
+    <a href="/" class="home-btn">Главная</a>
+    <a href="/profile" class="profile-btn">Профиль</a>
+    <a href="/profile/profileEdit" class="profileEdit-btn">Редактировать профиль</a>
+</header>
+
+<div class="container">
+    <!-- Баннер пользователя -->
+    <div class="profile-banner">
+        <img th:src="@{${user.banner}}" alt="Banner" class="banner">
+    </div>
+
+    <!-- Аватарка и имя пользователя -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <img th:src="@{${user.avatar}}" alt="Avatar" class="avatar">
+        </div>
+        <div>
+            <h1 th:text="${user.username}"></h1>
+            <p th:utext="${user.bio != null ? user.bio : 'Описание отсутствует'}" class="user-bio"></p>
+        </div>
+    </div>
+
+    <!-- Список постов пользователя -->
+    <div>
+        <h3>Посты пользователя</h3>
+        <ul class="post-list">
+            <li th:each="post : ${posts}" class="post-item" >
+                <div class="author-info">
+                    <div class="author-avatar">
+                        <img th:src="@{${post.authorAvatar}}" alt="Avatar" class="avatar-post">
+                    </div>
+                    <a th:href="@{/profile/{username}(username=${post.author})}" class="author" th:text="'@' + ${post.author}"></a>
+                </div>
+                <h3 th:text="${post.title}"></h3>
+                <p th:utext="${post.content}"></p>
+                <small th:text="${post.formattedDate}"></small>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

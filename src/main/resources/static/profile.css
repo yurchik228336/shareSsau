@@ -1,0 +1,247 @@
+:root {
+    --ck-color-base-background: #2C2C2C !important;
+    --ck-color-base-text: white !important;
+    --ck-color-base-border: none !important;
+    --ck-color-button-default-hover-background: #121212 !important;
+    --ck-color-button-default-active-background: #121212 !important;
+    --ck-border-radius: 8px !important;
+    --ck-color-focus-border-coordinates: none !important;
+    --ck-color-link-default: #6200ea !important;
+}
+
+.ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
+    border-color: transparent !important;
+}
+
+.profile-btn, .home-btn, .profileEdit-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #6200ea;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-sizing: border-box;
+}
+
+.profile-btn:hover, .home-btn:hover, .profileEdit-btn:hover {
+    background-color: #3700b3;
+    transform: translateY(-2px);
+}
+
+.profile-btn:active, .home-btn:active, .profileEdit-btn:active {
+    background-color: #6200ea;
+    transform: translateY(0);
+}
+
+.post-item img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 5px 0;
+    border-radius: 8px;
+}
+
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #1f1f1f;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.profile-banner {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.profile-banner .banner {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    margin-right: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 4px solid #6200ea;
+}
+
+.profile-avatar .avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-header h1 {
+    color: #ffffff;
+    font-weight: bold;
+    margin: 0;
+}
+
+.user-bio {
+    margin: 0;
+}
+
+.author-info {
+    display: flex;
+    align-items: center;
+}
+
+.author-avatar .avatar-post {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    overflow: hidden;
+}
+
+.author {
+    font-size: 16px;
+    color: #bb86fc;
+    font-weight: bold;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-top: 0px;
+}
+
+ul.post-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+li.post-item {
+    background: #2c2c2c;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.3s ease;
+    position: relative;
+}
+
+li.post-item:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+}
+
+li.post-item h3 {
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.post-item p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    word-break: break-word;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+
+small {
+    font-size: 14px;
+    color: #999;
+    top: 10px;
+    bottom: 10px;
+    right: 10px;
+    position: absolute;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+
+    .profile-header h1 {
+        font-size: 20px;
+    }
+
+    .user-bio {
+        font-size: 14px;
+    }
+
+    .author-avatar .avatar-post {
+        width: 28px;
+        height: 28px;
+    }
+
+    .author {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .profile-header h1 {
+        font-size: 18px;
+    }
+
+    .user-bio {
+        font-size: 12px;
+    }
+
+    .author-avatar .avatar-post {
+        width: 24px;
+        height: 24px;
+    }
+
+    .author {
+        font-size: 12px;
+    }
+}
+.post-item a {
+    color: #bb86fc;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.post-item a:hover {
+    color: #6200ea;
+}

@@ -1,0 +1,257 @@
+
+
+:root {
+    --ck-color-base-background: #2c2c2c !important;
+    --ck-color-base-text: white !important;
+    --ck-color-base-border: none !important;
+    --ck-color-button-default-hover-background: #121212 !important;
+    --ck-color-button-default-active-background: #121212 !important;
+    --ck-border-radius: 8px !important;
+    --ck-color-focus-border-coordinates: none !important;
+    --ck-color-link-default: #6200ea !important;
+}
+.author-info {
+    display: flex;
+    align-items: center;
+}
+.avatar {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+}
+.author {
+    font-size: 16px;
+    color: #bb86fc;
+    font-weight: 700;
+    text-decoration: none;
+    margin-bottom: 0;
+    margin-left: 10px;
+}
+.header {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+.profile-btn, .home-btn, .profileEdit-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #6200ea;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-sizing: border-box;
+}
+.profile-btn:hover, .home-btn:hover, .profileEdit-btn:hover {
+    background-color: #3700b3;
+    transform: translateY(-2px);
+}
+.profile-btn:active, .home-btn:active, .profileEdit-btn:active {
+    background-color: #6200ea;
+    transform: translateY(0);
+}
+@media (max-width: 768px) {
+    .header {
+        top: 10px;
+        right: 10px;
+    }
+    .profile-btn {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+}
+.post-item a {
+    color: #bb86fc;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.post-item a:hover {
+    color: #6200ea;
+}
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+input[type="email"],
+input[type="password"],
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background: #2c2c2c;
+    color: #e0e0e0;
+    font-size: 16px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.error {
+    color: #ff4d4d;
+    font-size: 14px;
+    padding: 5px;
+    background-color: #fcc;
+    border-radius: 5px;
+    border: none;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus,
+textarea:focus {
+    outline: 0;
+}
+textarea {
+    resize: none;
+    min-height: 100px;
+}
+a {
+    text-decoration: none;
+}
+.post-item img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 5px 0;
+    border-radius: 8px;
+}
+.container {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #1f1f1f;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+h1,
+h3 {
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #6200ea;
+    color: #fff;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.btn:hover {
+    background-color: #3700b3;
+    transform: translateY(-2px);
+}
+.btn:active {
+    background-color: #6200ea;
+    transform: translateY(0);
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+li {
+    background: #2c2c2c;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.3s ease;
+    position: relative;
+}
+li:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+}
+h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-top: 0;
+}
+small {
+    font-size: 14px;
+    color: #999;
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    right: 10px;
+}
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    .btn {
+        width: 100%;
+        padding: 12px;
+        max-width: 100%;
+    }
+}
+.post-item p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    word-break: break-word;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+
+
+/* Адаптивность для экранов до 768px */
+@media (max-width: 768px) {
+    .header {
+        display: flex; /* Enable flexbox for the header */
+        justify-content: space-between; /* Distribute space between buttons */
+        gap: 10px; /* Set the gap between buttons */
+        margin-top: 10px; /* Add a 10px gap from the top of the screen */
+    }
+
+    .profile-btn, .home-btn, .profileEdit-btn {
+        flex-grow: 1; /* Make each button grow to fill available space */
+        padding: 12px; /* Adjust padding to add space inside the button */
+        font-size: 14px; /* Adjust font size for smaller screens */
+        display: flex; /* Enable flexbox inside the button */
+        align-items: center; /* Vertically center the text */
+        justify-content: center; /* Horizontally center the text */
+        text-align: center; /* Ensure the text is centered */
+        box-sizing: border-box; /* Include padding in the total width of the button */
+    }
+}
+
+/* Адаптивность для экранов до 480px */
+@media (max-width: 480px) {
+    .profile-btn, .home-btn, .profileEdit-btn {
+        flex-grow: 1; /* Ensure the buttons grow on smaller screens */
+        padding: 10px; /* Adjust padding for smaller screens */
+        font-size: 14px; /* Adjust font size */
+        display: flex; /* Enable flexbox inside the button */
+        align-items: center; /* Vertically center the text */
+        justify-content: center; /* Horizontally center the text */
+        text-align: center; /* Ensure the text is centered */
+        box-sizing: border-box; /* Include padding in the total width of the button */
+    }
+
+    .header {
+        margin-top: 10px; /* Add a 10px gap from the top of the screen */
+    }
+}

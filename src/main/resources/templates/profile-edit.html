@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование профиля</title>
+    <link rel="stylesheet" th:href="@{/profile-edit.css}">
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+</head>
+<body>
+<header class="header">
+    <a href="/" class="home-btn">Главная</a>
+    <a href="/profile" class="profile-btn">Профиль</a>
+</header>
+
+<div class="container">
+    <h1>Редактирование профиля</h1>
+
+    <form id="profile-form" action="#" method="post" enctype="multipart/form-data">
+        <!-- Баннер -->
+        <!-- Баннер -->
+        <div class="form-group">
+            <label for="banner">Изменить баннер:</label>
+            <input type="file" id="banner" name="banner">
+            <div class="current-banner">
+                <p>Текущий баннер:</p>
+                <img th:src="@{${user.banner}}" alt="Banner" class="banner">
+            </div>
+        </div>
+
+        <!-- Аватарка -->
+        <!-- Аватарка -->
+        <div class="form-group">
+            <label for="avatar">Изменить аватар:</label>
+            <input type="file" id="avatar" name="avatar">
+            <div class="current-avatar">
+                <img th:src="@{${user.avatar}}" alt="Avatar" class="avatar">
+            </div>
+        </div>
+
+
+
+        <!-- Биография с CKEditor -->
+        <div class="form-group">
+            <label for="bio">Описание профиля:</label>
+            <textarea id="bio" name="bio" rows="3" maxlength="500" th:text="${user.bio}"></textarea>
+
+
+        </div>
+
+        <button type="submit">Сохранить изменения</button>
+    </form>
+</div>
+
+<script>
+    // Инициализация CKEditor для поля "bio"
+    let editor; // Ссылка на экземпляр редактора
+    ClassicEditor.create(document.querySelector('#bio'), {
+        toolbar: [
+            'undo', 'redo', '|', 'bold', 'italic', '|', 'link'
+        ],
+        language: {
+            ui: 'ru',
+            content: 'ru'
+        },
+        placeholder: 'Введите описание...',
+        simpleUpload: {
+            uploadUrl: '/upload',
+        },
+        alignment: {
+            options: ['left', 'center', 'right']
+        },
+        dragAndDrop: true
+    })
+    .then(newEditor => {
+        editor = newEditor; // Сохраняем ссылку на экземпляр редактора
+    })
+    .catch(error => {
+        console.error("Ошибка инициализации CKEditor:", error);
+    });
+
+    // JavaScript для отправки файлов и биографии через AJAX
+    // JavaScript для отправки файлов и биографии через AJAX
+document.querySelector("#profile-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const bioText = editor.getData();  // Получаем данные из CKEditor (HTML-контент)
+
+    // Проверка длины текста биографии
+    if (bioText.length > 300) {
+        alert("Описание не может превышать 300 символов.");
+        return; // Прерываем отправку формы
+    }
+
+    const formData = new FormData();
+    const avatarFile = document.querySelector("#avatar").files[0];
+    const bannerFile = document.querySelector("#banner").files[0];
+
+    // Добавление файлов в FormData
+    if (avatarFile) formData.append("avatar", avatarFile);
+    if (bannerFile) formData.append("banner", bannerFile);
+    if (bioText) formData.append("bio", bioText);  // Добавляем биографию в формате HTML
+
+    // Отправка комбинированных данных
+    fetch("/profile/update-profile", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Изменения успешно сохранены!");
+            // Обновление UI с новыми данными
+            if (data.avatarUrl) document.querySelector(".current-avatar img").src = data.avatarUrl;
+            if (data.bannerUrl) document.querySelector(".current-banner img").src = data.bannerUrl;
+            if (data.bio) {
+                // Если био обновлено, обновляем его на странице
+                editor.setData(data.bio); // Обновляем содержимое CKEditor
+            }
+        } else {
+            alert("Ошибка сохранения изменений: " + data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Ошибка:", error);
+        alert("Произошла ошибка при сохранении.");
+    });
+});
+
+</script>
+
+</body>
+</html>

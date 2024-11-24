@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лента</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header class="header">
+    <a href="/" class="home-btn">Главная</a>
+    <a href="/profile" class="profile-btn">Профиль</a>
+    <a href="/profile/profileEdit" class="profileEdit-btn">Редактировать профиль</a>
+</header>
+
+
+<div class="container">
+    <h1>Лента</h1>
+    <a href="/new" class="btn">Новый пост</a>
+
+    <!-- Список постов -->
+    <div>
+        <ul class="post-list" id="postList">
+            <li th:each="post : ${posts}" class="post-item">
+                <div class="author-info">
+                    <div class="author-avatar">
+                        <img th:src="@{${post.authorAvatar}}" alt="Avatar" class="avatar">
+                    </div>
+                    <a th:href="@{/profile/{username}(username=${post.author})}" class="author" th:text="'@' + ${post.author}"></a>
+                </div>
+                <h3 th:text="${post.title}"></h3>
+                <p th:utext="${post.content}"></p>
+                <small th:text="${post.formattedDate}"></small>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Открытие SSE подключения для получения новых постов
+    const eventSource = new EventSource('/stream');
+
+    // Обработка новых постов
+    eventSource.onmessage = function(event) {
+        const post = JSON.parse(event.data);
+
+        // Создаем новый элемент списка для нового поста
+        const postList = document.getElementById('postList');
+        const postItem = document.createElement('li');
+        postItem.classList.add('post-item');
+
+        postItem.innerHTML = `
+            <div class="author-info">
+                <div class="author-avatar">
+                    <img src="${post.authorAvatar}" alt="Avatar" class="avatar">
+                </div>
+                <a href="/profile/${post.author}" class="author">@${post.author}</a>
+            </div>
+            <h3>${post.title}</h3>
+            <p>${post.content}</p>
+            <small>${post.formattedDate}</small>
+        `;
+
+        // Добавляем новый пост в начало ленты
+        postList.insertBefore(postItem, postList.firstChild);
+    };
+</script>
+
+</body>
+</html>
