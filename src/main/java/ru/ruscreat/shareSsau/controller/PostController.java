@@ -13,7 +13,6 @@ import ru.ruscreat.shareSsau.models.User;
 import ru.ruscreat.shareSsau.services.PostService;
 import ru.ruscreat.shareSsau.services.UserService;
 
-
 import java.util.List;
 import java.util.Comparator;
 import java.util.Locale;
@@ -43,7 +42,6 @@ public class PostController {
     private final PostService postService;
     private final UserService userService;
 
-
     // Список для хранения всех SSE эмиттеров
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
@@ -59,29 +57,31 @@ public class PostController {
     }
 
     @GetMapping("/")
-    public String viewPosts(Model model) {
-        // Получаем все посты, сортируем их по дате
-        List<Post> sortedPosts = postService.getAllPosts().stream()
-                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
-                .collect(Collectors.toList());
-
-        // Форматируем дату для каждого поста с учётом часового пояса
+    public String viewPosts(Model model, 
+                          @RequestParam(defaultValue = "0") int page,
+                          @RequestParam(defaultValue = "10") int size) {
+        // Получаем посты с пагинацией
+        List<Post> sortedPosts = postService.getPagedPosts(page, size);
+        
+        // Форматируем дату для каждого поста
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy года HH:mm")
-                .withLocale(new Locale("ru")); // Локализация на русский
+                .withLocale(new Locale("ru"));
+        
+        // Используем параллельный стрим для более быстрой обработки
+        sortedPosts.parallelStream().forEach(post -> {
+            ZonedDateTime zonedDateTime = post.getCreatedAt().atZone(ZoneId.systemDefault());
+            post.setFormattedDate(zonedDateTime.format(formatter));
 
-        sortedPosts.forEach(post -> {
-            ZonedDateTime zonedDateTime = post.getCreatedAt().atZone(ZoneId.systemDefault()); // Время по местному часовому поясу
-            String formattedDate = zonedDateTime.format(formatter);
-            post.setFormattedDate(formattedDate); // Сохраняем отформатированную дату в объекте
-
-            // Задаем аватарку автора, если она есть, или по умолчанию
-            if (post.getAuthor() != null) {
+            // Проверяем наличие автора и аватара
+            if (post.getAuthor() != null && post.getAuthorAvatar() == null) {
                 String avatarUrl = getAvatarForUser(post.getAuthor());
                 post.setAuthorAvatar(avatarUrl);
             }
         });
 
         model.addAttribute("posts", sortedPosts);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("hasMore", sortedPosts.size() >= size);
         return "posts";
     }
 

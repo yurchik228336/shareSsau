@@ -46,9 +46,12 @@
                     <p th:utext="${post.content}"></p>
                     <small th:text="${post.formattedDate}"></small>
                     <div sec:authorize="isAuthenticated()">
-                        <button th:if="${#authentication.name == post.author}" 
-                                class="delete-button" 
-                                th:onclick="'deletePost(\'' + ${post.id} + '\')'">🗑️</button>
+                        <button class="delete-button"
+                                th:if="${post.author == #authentication.name}"
+                                th:onclick="'deletePost(\'' + ${post.id} + '\')'"
+                                title="Удалить пост">
+                            <img th:src="@{/images/trash.svg}" alt="Удалить">
+                        </button>
                     </div>
                 </li>
             </ul>

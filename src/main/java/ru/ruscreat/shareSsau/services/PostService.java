@@ -6,6 +6,7 @@ import ru.ruscreat.shareSsau.repository.PostRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -32,5 +33,13 @@ public class PostService {
     }
     public List<Post> getPostsByAuthor(String author) {
         return postRepository.findByAuthor(author);
+    }
+
+    public List<Post> getPagedPosts(int page, int size) {
+        return postRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .skip(page * size)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 }

@@ -9,4 +9,5 @@ import java.util.List;
 @Repository // Пометка для Spring, что это репозиторий
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByAuthor(String author);
+    List<Post> findAllByOrderByCreatedAtDesc();
 }
