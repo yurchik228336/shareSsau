@@ -4,10 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Post {
@@ -37,7 +40,8 @@ public class Post {
     @Column
     private String authorAvatar;  // Ссылка на аватарку автора
 
-
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private Set<Like> likes = new HashSet<>();
 
     // Конструктор по умолчанию
     public Post() {
@@ -127,4 +131,21 @@ public class Post {
         this.authorAvatar = authorAvatar;
     }
 
+    public Set<Like> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Set<Like> likes) {
+        this.likes = likes;
+    }
+
+    public int getLikeCount() {
+        return likes.size();
+    }
+
+    public boolean isLikedByUser(Object principal) {
+        if (principal == null) return false;
+        String username = ((UserDetails) principal).getUsername();
+        return likes.stream().anyMatch(like -> like.getUser().getUsername().equals(username));
+    }
 }

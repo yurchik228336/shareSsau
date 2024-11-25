@@ -3,19 +3,16 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Посты</title>
     <link rel="stylesheet" th:href="@{/style.css}">
     <link rel="stylesheet" th:href="@{/header.css}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Лента</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <div th:replace="fragments/header :: header('home')"></div>
 
-<header class="header">
-    <a href="/" class="home-btn">Главная</a>
-    <a href="/profile" class="profile-btn">Профиль</a>
-    <a href="/profile/profileEdit" class="profileEdit-btn">Редактировать профиль</a>
-</header>
+
 
 <div class="container">
     <h1>Лента</h1>
@@ -24,7 +21,7 @@
     <!-- Список постов -->
     <div>
         <ul class="post-list" id="postList">
-            <li th:each="post : ${posts}" class="post-item">
+            <li th:each="post : ${posts}" class="post-item" data-post-id="${post.id}">
                 <div class="author-info">
                     <div class="author-avatar">
                         <a th:href="@{/profile/{username}(username=${post.author})}">
@@ -36,13 +33,31 @@
                 <h3 th:text="${post.title}"></h3>
                 <p th:utext="${post.content}"></p>
                 <small th:text="${post.formattedDate}"></small>
-                <div sec:authorize="isAuthenticated()">
-                    <button th:if="${post.author == #authentication.name}"
-                            class="delete-button" 
-                            th:onclick="'deletePost(\'' + ${post.id} + '\')'"
-                            title="Удалить пост">
-                        <img th:src="@{/images/trash.svg}" alt="Удалить">
-                    </button>
+                
+                <div class="post-actions">
+                    <div class="left-actions">
+                        <div class="like-container">
+                            <button th:id="'likeBtn-' + ${post.id}" 
+                                    class="like-button" 
+                                    th:classappend="${post.isLikedByUser(#authentication.principal)} ? 'liked' : ''"
+                                    th:onclick="'toggleLike(' + ${post.id} + ')'">
+                                <i class="fas fa-heart"></i>
+                                <span th:id="'likeCount-' + ${post.id}" th:text="${post.getLikeCount()}">0</span>
+                            </button>
+                            <div th:id="'likeUsers-' + ${post.id}" class="like-users-popup">
+                                <div class="loading">Загрузка...</div>
+                                <ul class="users-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right-actions" sec:authorize="isAuthenticated()">
+                        <button th:if="${post.author == #authentication.name}"
+                                class="delete-button" 
+                                th:onclick="'deletePost(\'' + ${post.id} + '\')'"
+                                title="Удалить пост">
+                            <img th:src="@{/images/trash.svg}" alt="Удалить">
+                        </button>
+                    </div>
                 </div>
             </li>
         </ul>
@@ -153,6 +168,149 @@
         }
     }
 
+    // Кэш для лайков
+    const likeCache = new Map();
+    
+    async function toggleLike(postId) {
+        const button = document.getElementById(`likeBtn-${postId}`);
+        const countElement = document.getElementById(`likeCount-${postId}`);
+        
+        try {
+            const response = await fetch(`/api/likes/toggle/${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new TypeError("Received non-JSON response from server");
+            }
+            
+            const data = await response.json();
+            
+            // Обновляем UI
+            button.classList.toggle('liked', data.liked);
+            countElement.textContent = data.likeCount;
+            
+            // Очищаем кэш лайков
+            likeCache.delete(postId);
+            
+            // Обновляем список пользователей, если попап открыт
+            const popup = document.getElementById(`likeUsers-${postId}`);
+            if (popup.classList.contains('show')) {
+                const likeInfo = await lazyLoadLikeInfo(postId);
+                if (likeInfo) {
+                    const usersList = popup.querySelector('.users-list');
+                    usersList.innerHTML = likeInfo.likedBy.length > 0
+                        ? likeInfo.likedBy.map(user => `<li>@${user}</li>`).join('')
+                        : '<li>Пока нет лайков</li>';
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Ошибка при обновлении лайка');
+        }
+    }
+    
+    async function lazyLoadLikeInfo(postId) {
+        try {
+            if (likeCache.has(postId)) {
+                return likeCache.get(postId);
+            }
+            
+            const response = await fetch(`/api/likes/users/${postId}`);
+            const data = { likedBy: await response.json() };
+            likeCache.set(postId, data);
+            return data;
+        } catch (error) {
+            console.error('Error loading like info:', error);
+            return null;
+        }
+    }
+
+    // Оптимизированная загрузка списка лайкнувших пользователей
+    let currentPopup = null;
+
+    async function showLikeUsers(postId, button) {
+        const popup = document.getElementById(`likeUsers-${postId}`);
+        if (currentPopup && currentPopup !== popup) {
+            currentPopup.classList.remove('show');
+        }
+        
+        const likeInfo = await lazyLoadLikeInfo(postId);
+        if (!likeInfo) return;
+        
+        const usersList = popup.querySelector('.users-list');
+        const loading = popup.querySelector('.loading');
+        
+        usersList.innerHTML = likeInfo.likedBy.length > 0
+            ? likeInfo.likedBy.map(user => `<li>@${user}</li>`).join('')
+            : '<li>Пока нет лайков</li>';
+            
+        loading.style.display = 'none';
+        usersList.style.display = 'block';
+        
+        const buttonRect = button.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        
+        // Always position above the button
+        popup.style.bottom = (window.innerHeight - buttonRect.top + 10) + 'px';
+        popup.style.top = 'auto';
+        popup.setAttribute('data-position', 'above');
+        
+        // Center horizontally relative to the button
+        const popupWidth = 200; // Width from CSS
+        let leftPosition = buttonRect.left + (buttonRect.width / 2) - (popupWidth / 2);
+        
+        // Ensure popup doesn't go off screen horizontally
+        const minLeft = 10;
+        const maxLeft = viewportWidth - popupWidth - 10;
+        leftPosition = Math.max(minLeft, Math.min(maxLeft, leftPosition));
+        
+        popup.style.left = leftPosition + 'px';
+        popup.classList.add('show');
+        
+        currentPopup = popup;
+    }
+
+    // Обработчики событий для лайков
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.like-container').forEach(container => {
+            const button = container.querySelector('.like-button');
+            const popup = container.querySelector('.like-users-popup');
+            const postId = button.id.split('-')[1];
+
+            // Показываем попап при наведении на кнопку лайка
+            button.addEventListener('mouseenter', () => {
+                showLikeUsers(postId, button);
+                popup.classList.add('show');
+            });
+
+            // Скрываем попап при уходе курсора с контейнера
+            container.addEventListener('mouseleave', () => {
+                popup.classList.remove('show');
+            });
+
+            // Предотвращаем скрытие при наведении на сам попап
+            popup.addEventListener('mouseenter', () => {
+                popup.classList.add('show');
+            });
+
+            popup.addEventListener('mouseleave', () => {
+                popup.classList.remove('show');
+            });
+        });
+    });
+</script>
+
+<script>
     // Открытие SSE подключения для получения новых постов
     const eventSource = new EventSource('/stream');
 
@@ -175,6 +333,20 @@
             <h3>${post.title}</h3>
             <p>${post.content}</p>
             <small>${post.formattedDate}</small>
+            <div class="post-actions">
+                <div class="left-actions">
+                    <div class="like-container">
+                        <button id="likeBtn-${post.id}" class="like-button">
+                            <i class="fas fa-heart"></i>
+                            <span id="likeCount-${post.id}" class="like-count">0</span>
+                        </button>
+                        <div id="likeUsers-${post.id}" class="like-users-popup">
+                            <div class="loading">Загрузка...</div>
+                            <ul class="users-list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
 
         postList.insertBefore(postItem, postList.firstChild);

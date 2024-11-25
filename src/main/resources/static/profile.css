@@ -8,21 +8,165 @@
     --ck-color-focus-border-coordinates: none !important;
     --ck-color-link-default: #6200ea !important;
 }
+
 .delete-button {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
     color: red;
     cursor: pointer;
     font-size: 24px;
     background: none;
     border: none;
-    padding: 0;
+    padding: 5px;
+    display: flex;
+    align-items: center;
 }
+
+.delete-button img {
+    width: 24px;
+    height: 24px;
+}
+
+.post-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    bottom: 10px;
+    left: 15px;
+    right: 15px;
+}
+
+.left-actions, .right-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.like-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.like-button i {
+    color: #ccc;
+    font-size: 1.2em;
+    transition: all 0.3s ease;
+}
+
+.like-button.liked i {
+    color: #ff4b4b;
+    transform: scale(1.1);
+}
+
+.like-button:hover i {
+    transform: scale(1.1);
+}
+
+.like-button span {
+    color: #e0e0e0;
+    font-size: 14px;
+    min-width: 20px;
+}
+
+.like-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.like-users-popup {
+    display: none;
+    position: fixed;
+    background-color: #1f1f1f;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 10px;
+    width: 200px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.like-users-popup .loading {
+    color: #bb86fc;
+    text-align: center;
+    padding: 10px;
+}
+
+.like-users-popup .users-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.like-users-popup .users-list li {
+    padding: 8px;
+    border-bottom: 1px solid #333;
+    color: #e0e0e0;
+}
+
+.like-users-popup .users-list li:last-child {
+    border-bottom: none;
+}
+
+.like-users-popup .users-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.like-users-popup .users-list::-webkit-scrollbar-track {
+    background: #2c2c2c;
+    border-radius: 3px;
+}
+
+.like-users-popup .users-list::-webkit-scrollbar-thumb {
+    background: #bb86fc;
+    border-radius: 3px;
+}
+
+.like-users-popup::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #1f1f1f;
+    border-right: 1px solid #333;
+    border-bottom: 1px solid #333;
+    transform: rotate(45deg);
+    bottom: -6px;
+    left: 50%;
+    margin-left: -5px;
+}
+
 .post-item {
     position: relative;
-    padding-bottom: 40px;
+    background-color: #1f1f1f;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    min-height: 150px;
+    padding-bottom: 50px;
 }
+
+.post-item h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.post-item small {
+    color: #888;
+    display: block;
+    margin-bottom: 15px;
+}
+
 .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
     border-color: transparent !important;
 }
@@ -159,8 +303,6 @@ ul.post-list {
 
 li.post-item {
     background: #2c2c2c;
-    padding: 15px;
-    margin-bottom: 15px;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     transition: box-shadow 0.3s ease;
@@ -193,6 +335,15 @@ small {
     bottom: 10px;
     right: 10px;
     position: absolute;
+}
+
+.post-item a {
+    color: #bb86fc;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.post-item a:hover {
+    color: #6200ea;
 }
 
 /* Адаптивность */
@@ -250,12 +401,4 @@ small {
     .author {
         font-size: 12px;
     }
-}
-.post-item a {
-    color: #bb86fc;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-.post-item a:hover {
-    color: #6200ea;
 }

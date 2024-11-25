@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" th:href="@{/profile.css}">
     <link rel="stylesheet" th:href="@{/header.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль пользователя</title>
 </head>
@@ -45,20 +46,37 @@
                     <h3 th:text="${post.title}"></h3>
                     <p th:utext="${post.content}"></p>
                     <small th:text="${post.formattedDate}"></small>
-                    <div sec:authorize="isAuthenticated()">
-                        <button class="delete-button"
-                                th:if="${post.author == #authentication.name}"
-                                th:onclick="'deletePost(\'' + ${post.id} + '\')'"
-                                title="Удалить пост">
-                            <img th:src="@{/images/trash.svg}" alt="Удалить">
-                        </button>
+                    <div class="post-actions">
+                        <div class="left-actions">
+                            <div class="like-container">
+                                <button th:id="'likeBtn-' + ${post.id}" 
+                                        class="like-button" 
+                                        th:classappend="${post.isLikedByUser(#authentication.principal)} ? 'liked' : ''"
+                                        th:onclick="'toggleLike(' + ${post.id} + ')'">
+                                    <i class="fas fa-heart"></i>
+                                    <span th:id="'likeCount-' + ${post.id}" th:text="${post.getLikeCount()}">0</span>
+                                </button>
+                                <div th:id="'likeUsers-' + ${post.id}" class="like-users-popup">
+                                    <div class="loading">Загрузка...</div>
+                                    <ul class="users-list"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="right-actions" sec:authorize="isAuthenticated()">
+                            <button th:if="${post.author == #authentication.name}"
+                                    class="delete-button" 
+                                    th:onclick="'deletePost(\'' + ${post.id} + '\')'"
+                                    title="Удалить пост">
+                                <img th:src="@{/images/trash.svg}" alt="Удалить">
+                            </button>
+                        </div>
                     </div>
                 </li>
             </ul>
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
         function deletePost(postId) {
             if (confirm('Вы уверены, что хотите удалить этот пост?')) {
                 fetch(`/api/posts/${postId}`, {
@@ -78,6 +96,146 @@
                 });
             }
         }
+
+        // Кэш для лайков
+        const likeCache = new Map();
+        
+        async function toggleLike(postId) {
+            const button = document.getElementById(`likeBtn-${postId}`);
+            const countElement = document.getElementById(`likeCount-${postId}`);
+            
+            try {
+                const response = await fetch(`/api/likes/toggle/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new TypeError("Received non-JSON response from server");
+                }
+                
+                const data = await response.json();
+                
+                // Обновляем UI
+                button.classList.toggle('liked', data.liked);
+                countElement.textContent = data.likeCount;
+                
+                // Очищаем кэш лайков
+                likeCache.delete(postId);
+                
+                // Обновляем список пользователей, если попап открыт
+                const popup = document.getElementById(`likeUsers-${postId}`);
+                if (popup.style.display === 'block') {
+                    const likeInfo = await lazyLoadLikeInfo(postId);
+                    if (likeInfo) {
+                        const usersList = popup.querySelector('.users-list');
+                        usersList.innerHTML = likeInfo.likedBy.length > 0
+                            ? likeInfo.likedBy.map(user => `<li>@${user}</li>`).join('')
+                            : '<li>Пока нет лайков</li>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ошибка при обновлении лайка');
+            }
+        }
+
+        async function lazyLoadLikeInfo(postId) {
+            if (likeCache.has(postId)) return likeCache.get(postId);
+            
+            try {
+                const response = await fetch(`/api/likes/users/${postId}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = { likedBy: await response.json() };
+                likeCache.set(postId, data);
+                return data;
+            } catch (error) {
+                console.error('Error loading like info:', error);
+                return null;
+            }
+        }
+
+        // Оптимизированная загрузка списка лайкнувших пользователей
+        let currentPopup = null;
+        let popupTimeout = null;
+
+        async function showLikeUsers(postId, button) {
+            const popup = document.getElementById(`likeUsers-${postId}`);
+            if (currentPopup && currentPopup !== popup) {
+                currentPopup.style.display = 'none';
+            }
+            
+            const likeInfo = await lazyLoadLikeInfo(postId);
+            if (!likeInfo) return;
+            
+            const usersList = popup.querySelector('.users-list');
+            const loading = popup.querySelector('.loading');
+            
+            usersList.innerHTML = likeInfo.likedBy.length > 0
+                ? likeInfo.likedBy.map(user => `<li>@${user}</li>`).join('')
+                : '<li>Пока нет лайков</li>';
+                
+            loading.style.display = 'none';
+            usersList.style.display = 'block';
+            
+            const buttonRect = button.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            
+            // Always position above the button
+            popup.style.bottom = (window.innerHeight - buttonRect.top + 10) + 'px';
+            popup.style.top = 'auto';
+            popup.setAttribute('data-position', 'above');
+            
+            // Center horizontally relative to the button
+            const popupWidth = 200; // Width from CSS
+            let leftPosition = buttonRect.left + (buttonRect.width / 2) - (popupWidth / 2);
+            
+            // Ensure popup doesn't go off screen horizontally
+            const minLeft = 10;
+            const maxLeft = viewportWidth - popupWidth - 10;
+            leftPosition = Math.max(minLeft, Math.min(maxLeft, leftPosition));
+            
+            popup.style.left = leftPosition + 'px';
+            popup.style.display = 'block';
+            
+            currentPopup = popup;
+        }
+
+        // Обработчики событий для лайков
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.like-container').forEach(container => {
+                const button = container.querySelector('.like-button');
+                const postId = button.id.split('-')[1];
+                const popup = document.getElementById(`likeUsers-${postId}`);
+                
+                // Показываем попап при наведении
+                container.addEventListener('mouseenter', () => {
+                    const loading = popup.querySelector('.loading');
+                    const usersList = popup.querySelector('.users-list');
+                    loading.style.display = 'block';
+                    usersList.style.display = 'none';
+                    showLikeUsers(postId, button);
+                });
+
+                // Мгновенно скрываем попап при уходе курсора
+                container.addEventListener('mouseleave', () => {
+                    popup.style.display = 'none';
+                    const loading = popup.querySelector('.loading');
+                    const usersList = popup.querySelector('.users-list');
+                    loading.style.display = 'block';
+                    usersList.style.display = 'none';
+                });
+            });
+        });
     </script>
 
 </body>
